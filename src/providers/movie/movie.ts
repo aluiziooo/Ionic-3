@@ -19,6 +19,6 @@ export class MovieProvider {
     return this.http.get(this.baseApiPath+"/movie/popular?api_key="+this.getApiKey());
   }
   getApiKey(): string{
-    return "3ad6fd1789dca84c77744e01320db3da";
+    return "chave vai aqui";
   }
 }
