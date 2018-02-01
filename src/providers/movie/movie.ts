@@ -22,6 +22,6 @@ export class MovieProvider {
     return this.http.get(this.baseApiPath+`/movie/${filmeid}?api_key=`+this.getApiKey());
   }
   getApiKey(): string{
-    return "chave vai aqui";
+    return "sua chave vai aqui";
   }
 }
