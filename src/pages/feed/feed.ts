@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController } from 'ionic-angular';
 import { MovieProvider } from '../../providers/movie/movie';
+import { Refresher } from 'ionic-angular/components/refresher/refresher';
+import { DetalhesPage } from '../detalhes/detalhes';
 
 /**
  * Generated class for the FeedPage page.
@@ -28,26 +30,74 @@ export class FeedPage {
   }
 
   public lista_filmes = new Array<any>();
+  public page;
+  public infiniteScroll;
 
+  public loader;
+  public refresher;
+  public isRefreshing: boolean =false;
   public nomeUsuario:String = "Aluizio Neto do codigo";
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
-    private movieProvider: MovieProvider) {
+    private movieProvider: MovieProvider,
+    public loadingCtrl: LoadingController) {
+  }
+  abreCarregango() {
+    this.loader = this.loadingCtrl.create({
+      content: "Carregando Filme..."
+    });
+    this.loader.present();
+  }
+  fechaCarregando(){
+    this.loader.dismiss();
+  }
+  doRefresh(refresher) {
+    this.refresher = refresher;
+    this.isRefreshing = true;
+
+    this.carregandoFilmes();
+  }
+  ionViewDidEnter() {
+    this.carregandoFilmes();
+  }
+  abrirDetalhes(filme):void{
+    console.log(filme);
+    this.navCtrl.push(DetalhesPage, {id: filme.id});
   }
 
-  public somaDoisNumeros(num1:number, num2:number):void{
-    alert(num1+num2);
+  doInfinite(infiniteScroll) {
+    this.page++;
+    this.infiniteScroll = infiniteScroll;
+    this.carregandoFilmes(true);
+
   }
-  ionViewDidLoad() {
-    //this.somaDoisNumeros(3,4);
-    this.movieProvider.getLatestMovie().subscribe(
+
+  carregandoFilmes(newpage: boolean = false){
+    this.abreCarregango();
+    this.movieProvider.getLatestMovie(this.page).subscribe(
       data=>{
         const response = (data as any);
-        this.lista_filmes = response.results;
-        console.log(response);
+
+        if(newpage){
+          this.lista_filmes = this.lista_filmes.concat(response.results);
+          console.log(this.lista_filmes);
+          this.infiniteScroll.complete();
+        }else{
+          this.lista_filmes = response.results;
+        }
+        this.fechaCarregando();
+        if(this.isRefreshing){
+          this.refresher.complete();
+        }
+        this.isRefreshing = false;
     },erro=>{
       console.log(erro);
+      this.fechaCarregando();
+        if(this.isRefreshing){
+          this.refresher.complete();
+        }
+        this.isRefreshing = false;
     })
   }
 

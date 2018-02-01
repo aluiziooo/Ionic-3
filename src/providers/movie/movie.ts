@@ -15,8 +15,11 @@ export class MovieProvider {
   constructor(public http: HttpClient) {
     console.log('Hello MovieProvider Provider');
   }
-  getLatestMovie(){
-    return this.http.get(this.baseApiPath+"/movie/popular?api_key="+this.getApiKey());
+  getLatestMovie(page = 1){
+    return this.http.get(this.baseApiPath+`/movie/popular?page=$(page)&api_key=`+this.getApiKey());
+  }
+  getMovieDetails(filmeid){
+    return this.http.get(this.baseApiPath+`/movie/${filmeid}?api_key=`+this.getApiKey());
   }
   getApiKey(): string{
     return "3ad6fd1789dca84c77744e01320db3da";
